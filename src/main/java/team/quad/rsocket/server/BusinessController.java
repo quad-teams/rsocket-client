@@ -1,5 +1,6 @@
 package team.quad.rsocket.server;
 
+import lombok.AllArgsConstructor;
 import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -7,27 +8,26 @@ import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Mono;
 
 @RestController
+@AllArgsConstructor
 @RequestMapping("/businesses")
 public class BusinessController {
 
-  @Autowired
-  private RSocketRequester rSocketRequester;
+  private final RSocketRequester rSocketRequester;
 
-  @GetMapping(value = "/feed", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-  public Publisher<Business> post() {
+  @GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+  public Publisher<Business> feed() {
     return rSocketRequester
-      .route("feedBusiness")
-      .data(new Business())
+      .route("Business.Feed")
+      .data("")
       .retrieveFlux(Business.class);
   }
 
   @GetMapping("/collect")
-  public Mono<Void> get() {
+  public Publisher<Void> collect() {
     return rSocketRequester
-      .route("collectBusiness")
+      .route("Business.Collect")
       .data(new Business())
       .send();
   }
